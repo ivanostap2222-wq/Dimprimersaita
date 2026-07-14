@@ -1,0 +1,969 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Дым Лаундж — Кальянная | Калининград</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=Montserrat:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+
+        /* ========== RESET & BASE ========== */
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --black:     #0a0a0a;
+            --dark:      #111111;
+            --card:      #161616;
+            --border:    rgba(255,255,255,0.07);
+            --gold:      #c8a96e;
+            --gold-dim:  rgba(200,169,110,0.15);
+            --white:     #f0ece4;
+            --muted:     rgba(240,236,228,0.45);
+            --smoke:     rgba(200,169,110,0.06);
+        }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            background-color: var(--black);
+            color: var(--white);
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 300;
+            overflow-x: hidden;
+            line-height: 1.7;
+        }
+
+        /* ========== SCROLLBAR ========== */
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: var(--black); }
+        ::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 2px; }
+
+        /* ========== SMOKE CANVAS ========== */
+        #smokeCanvas {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.55;
+        }
+        /* ========== NAVIGATION ========== */
+        nav {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 100;
+            padding: 24px 48px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(to bottom, rgba(10,10,10,0.95), transparent);
+        }
+
+        .nav-logo {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 22px;
+            font-weight: 600;
+            color: var(--gold);
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 36px;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: var(--muted);
+            text-decoration: none;
+            font-size: 11px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover { color: var(--gold); }
+
+        /* ========== HERO ========== */
+        .hero {
+            position: relative;
+            z-index: 1;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 0 24px;
+        }
+
+        .hero-eyebrow {
+            font-size: 10px;
+            letter-spacing: 5px;
+            text-transform: uppercase;
+            color: var(--gold);
+            margin-bottom: 24px;
+            opacity: 0;
+            animation: fadeUp 1s 0.3s forwards;
+        }
+
+        .hero-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(52px, 10vw, 110px);
+            font-weight: 300;
+            line-height: 1;
+            letter-spacing: 8px;
+            text-transform: uppercase;
+            color: var(--white);
+            opacity: 0;
+            animation: fadeUp 1s 0.6s forwards;
+        }
+
+        .hero-title span { color: var(--gold); }
+
+        .hero-sub {
+            margin-top: 20px;
+            font-size: 12px;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            color: var(--muted);
+            opacity: 0;
+            animation: fadeUp 1s 0.9s forwards;
+        }
+
+        .hero-divider {
+            width: 60px;
+            height: 1px;
+            background: var(--gold);
+            margin: 32px auto;
+            opacity: 0;
+            animation: fadeUp 1s 1.1s forwards;
+        }
+
+        .hero-cta {
+            display: inline-block;
+            padding: 14px 40px;
+            border: 1px solid var(--gold);
+            color: var(--gold);
+            text-decoration: none;
+            font-size: 10px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            transition: all 0.3s;
+            opacity: 0;
+            animation: fadeUp 1s 1.3s forwards;
+        }
+
+        .hero-cta:hover {
+            background: var(--gold);
+            color: var(--black);
+        }
+
+        /* ========== SECTIONS ОБЩЕЕ ========== */
+        section {
+            position: relative;
+            z-index: 1;
+        }
+
+        .section-inner {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 100px 48px;
+        }
+
+        .section-label {
+            font-size: 10px;
+            letter-spacing: 5px;
+            text-transform: uppercase;
+            color: var(--gold);
+            margin-bottom: 16px;
+        }
+
+        .section-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(32px, 5vw, 54px);
+            font-weight: 300;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            margin-bottom: 48px;
+            color: var(--white);
+        }
+
+        /* ========== INFO CARDS ========== */
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1px;
+            background: var(--border);
+            border: 1px solid var(--border);
+        }
+
+        .info-card {
+            background: var(--card);
+            padding: 40px 32px;
+            transition: background 0.3s;
+        }
+
+        .info-card:hover { background: #1a1a1a; }
+
+        .info-card-icon {
+            font-size: 22px;
+            margin-bottom: 16px;
+            display: block;
+        }
+
+        .info-card-label {
+            font-size: 9px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--gold);
+            margin-bottom: 8px;
+        }
+
+        .info-card-value {
+            font-size: 14px;
+            color: var(--white);
+            line-height: 1.6;
+        }
+
+        /* ========== HOURS ========== */
+        .hours-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0;
+        }
+
+        .hours-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 0;
+            border-bottom: 1px solid var(--border);
+            font-size: 13px;
+        }
+
+        .hours-row:last-child { border-bottom: none; }
+
+        .hours-day { color: var(--muted); letter-spacing: 1px; }
+
+        .hours-time { color: var(--gold); font-size: 12px; letter-spacing: 1px; }
+
+        .hours-weekend { color: #e8b84b; }
+
+        /* ========== MENU ========== */
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1px;
+            background: var(--border);
+        }
+
+        .menu-category {
+            background: var(--card);
+            padding: 36px 28px;
+        }
+
+        .menu-cat-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 20px;
+            color: var(--gold);
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            margin-bottom: 24px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .menu-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border);
+            font-size: 13px;
+        }
+
+        .menu-item:last-child { border-bottom: none; }
+
+        .menu-item-name { color: var(--white); flex: 1; padding-right: 12px; }
+
+        .menu-item-sub {
+            font-size: 10px;
+            color: var(--muted);
+            display: block;
+            margin-top: 2px;
+        }
+
+        .menu-item-price {
+            color: var(--gold);
+            font-size: 13px;
+            white-space: nowrap;
+            letter-spacing: 1px;
+        }
+
+        /* ========== FEATURES ========== */
+        .features-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .feature-tag {
+            padding: 10px 20px;
+            border: 1px solid var(--border);
+            font-size: 11px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--muted);
+            transition: all 0.3s;
+        }
+
+        .feature-tag:hover {
+            border-color: var(--gold);
+            color: var(--gold);
+        }
+
+        /* ========== REVIEWS ========== */
+        .reviews-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1px;
+            background: var(--border);
+        }
+
+        .review-card {
+            background: var(--card);
+            padding: 32px 28px;
+            transition: background 0.3s;
+        }
+
+        .review-card:hover { background: #1a1a1a; }
+
+        .review-stars {
+            color: var(--gold);
+            font-size: 12px;
+            letter-spacing: 3px;
+            margin-bottom: 16px;
+        }
+
+        .review-text {
+            font-size: 13px;
+            color: var(--muted);
+            line-height: 1.8;
+            margin-bottom: 20px;
+            font-style: italic;
+        }
+
+        .review-author {
+            font-size: 11px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--gold);
+        }
+
+        .review-date {
+            font-size: 10px;
+            color: rgba(200,169,110,0.4);
+            margin-top: 4px;
+            letter-spacing: 1px;
+        }
+
+        /* ========== CONTACT ========== */
+        .contact-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1px;
+            background: var(--border);
+        }
+
+        .contact-block {
+            background: var(--card);
+            padding: 48px 40px;
+        }
+
+        .contact-label {
+            font-size: 9px;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            color: var(--gold);
+            margin-bottom: 12px;
+        }
+
+        .contact-value {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 24px;
+            color: var(--white);
+            text-decoration: none;
+            transition: color 0.3s;
+            display: block;
+        }
+
+        .contact-value:hover { color: var(--gold); }
+
+        .contact-sub {
+            font-size: 12px;
+            color: var(--muted);
+            margin-top: 8px;
+            letter-spacing: 1px;
+        }
+
+        /* ========== FOOTER ========== */
+        footer {
+            position: relative;
+            z-index: 1;
+            border-top: 1px solid var(--border);
+            padding: 32px 48px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .footer-logo {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 18px;
+            color: var(--gold);
+            letter-spacing: 3px;
+            text-transform: uppercase;
+        }
+
+        .footer-copy {
+            font-size: 10px;
+            color: var(--muted);
+            letter-spacing: 2px;
+        }
+
+        /* ========== ANIMATIONS ========== */
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(24px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* ========== RESPONSIVE ========== */
+        @media (max-width: 768px) {
+            nav { padding: 20px 24px; }
+            .nav-links { display: none; }
+            .section-inner { padding: 72px 24px; }
+            .contact-grid { grid-template-columns: 1fr; }
+            .hours-grid { grid-template-columns: 1fr; }
+            footer { flex-direction: column; gap: 12px; text-align: center; }
+        }
+
+    </style>
+</head>
+<body>
+
+    <!-- SMOKE ANIMATION CANVAS -->
+    <canvas id="smokeCanvas"></canvas>
+
+    <!-- NAVIGATION -->
+    <nav>
+        <a href="#" class="nav-logo">Дым Лаундж</a>
+        <ul class="nav-links">
+            <li><a href="#about">О нас</a></li>
+            <li><a href="#hours">Часы</a></li>
+            <li><a href="#menu">Меню</a></li>
+            <li><a href="#reviews">Отзывы</a></li>
+            <li><a href="#contact">Контакты</a></li>
+        </ul>
+    </nav>
+
+    <!-- HERO -->
+    <section class="hero">
+        <p class="hero-eyebrow">Калининград · ул. Александра Невского, 51В</p>
+        <h1 class="hero-title">Дым<span>.</span><br>Лаундж</h1>
+        <p class="hero-sub">Кальянная · Лаундж · Атмосфера</p>
+        <div class="hero-divider"></div>
+        <a href="#menu" class="hero-cta">Смотреть меню</a>
+    </section>
+
+    <!-- ABOUT / INFO -->
+    <section id="about">
+        <div class="section-inner">
+            <p class="section-label reveal">О заведении</p>
+            <h2 class="section-title reveal">Место где<br>время останавливается</h2>
+            <div class="info-grid reveal">
+                <div class="info-card">
+                    <span class="info-card-icon">🪔</span>
+                    <p class="info-card-label">Средний счёт</p>
+                    <p class="info-card-value">700 — 1 000 ₽</p>
+                </div>
+                <div class="info-card">
+                    <span class="info-card-icon">🃏</span>
+                    <p class="info-card-label">Развлечения</p>
+                    <p class="info-card-value">Настольные игры<br>Игровые приставки</p>
+                </div>
+                <div class="info-card">
+                    <span class="info-card-icon">📺</span>
+                    <p class="info-card-label">Экраны</p>
+                    <p class="info-card-value">5 экранов<br>Спортивные трансляции</p>
+                </div>
+                <div class="info-card">
+                    <span class="info-card-icon">🅿️</span>
+                    <p class="info-card-label">Парковка</p>
+                    <p class="info-card-value">Бесплатная<br>парковка</p>
+                </div>
+                <div class="info-card">
+                    <span class="info-card-icon">💳</span>
+                    <p class="info-card-label">Оплата</p>
+                    <p class="info-card-value">Карта · Наличные<br>Перевод · Дисконт</p>
+                </div>
+                <div class="info-card">
+                    <span class="info-card-icon">🎁</span>
+                    <p class="info-card-label">Акции</p>
+                    <p class="info-card-value">Скидки · Бонусы<br>Спецпредложения</p>
+                </div>
+            </div>
+
+            <!-- FEATURES -->
+            <div style="margin-top: 48px;">
+                <p class="section-label reveal">Особенности</p>
+                <div class="features-list reveal">
+                    <span class="feature-tag">Wi-Fi</span>
+                    <span class="feature-tag">Барная стойка</span>
+                    <span class="feature-tag">Банкетный зал</span>
+                    <span class="feature-tag">Можно с ноутбуком</span>
+                    <span class="feature-tag">Настольные игры</span>
+                    <span class="feature-tag">Игровые приставки</span>
+                    <span class="feature-tag">Спортивные трансляции</span>
+                    <span class="feature-tag">Бесплатная парковка</span>
+                    <span class="feature-tag">От 10 столов</span>
+                    <span class="feature-tag">Музыка Pop</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- HOURS -->
+    <section id="hours" style="background: var(--dark);">
+        <div class="section-inner">
+            <p class="section-label reveal">Режим работы</p>
+            <h2 class="section-title reveal">Часы работы</h2>
+            <div class="hours-grid reveal">
+                <div>
+                    <div class="hours-row">
+                        <span class="hours-day">Понедельник</span>
+                        <span class="hours-time">16:00 — 02:00</span>
+                    </div>
+                    <div class="hours-row">
+                        <span class="hours-day">Вторник</span>
+                        <span class="hours-time">16:00 — 02:00</span>
+                    </div>
+                    <div class="hours-row">
+                        <span class="hours-day">Среда</span>
+                        <span class="hours-time">16:00 — 02:00</span>
+                    </div>
+                    <div class="hours-row">
+                        <span class="hours-day">Четверг</span>
+                        <span class="hours-time">16:00 — 02:00</span>
+                    </div>
+                </div>
+                <div>
+                    <div class="hours-row">
+                        <span class="hours-day">Пятница</span>
+                        <span class="hours-time hours-weekend">16:00 — 04:00</span>
+                    </div>
+                    <div class="hours-row">
+                        <span class="hours-day">Суббота</span>
+                        <span class="hours-time hours-weekend">16:00 — 04:00</span>
+                    </div>
+                    <div class="hours-row">
+                        <span class="hours-day">Воскресенье</span>
+                        <span class="hours-time">16:00 — 02:00</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- MENU -->
+    <section id="menu">
+        <div class="section-inner">
+            <p class="section-label reveal">Что предлагаем</p>
+            <h2 class="section-title reveal">Меню</h2>
+            <div class="menu-grid reveal">
+
+                <!-- КАЛЬЯН -->
+                <div class="menu-category">
+                    <p class="menu-cat-title">Кальян</p>
+                    <div class="menu-item">
+                        <div>
+                            <span class="menu-item-name">Кальян</span>
+                            <span class="menu-item-sub">Аренда · по вашим предпочтениям</span>
+                        </div>
+                        <span class="menu-item-price">1 000 ₽</span>
+                    </div>
+                </div>
+
+                <!-- НАПИТКИ ПИВО -->
+                <div class="menu-category">
+                    <p class="menu-cat-title">Пиво</p>
+                    <div class="menu-item">
+                        <div>
+                            <span class="menu-item-name">SPATEN</span>
+                            <span class="menu-item-sub">1 шт.</span>
+                        </div>
+                        <span class="menu-item-price">210 ₽</span>
+                    </div>
+                    <div class="menu-item">
+                        <div>
+                            <span class="menu-item-name">Kalnapilis</span>
+                            <span class="menu-item-sub">1 шт.</span>
+                        </div>
+                        <span class="menu-item-price">220 ₽</span>
+                    </div>
+                    <div class="menu-item">
+                        <div>
+                            <span class="menu-item-name">BLANC</span>
+                            <span class="menu-item-sub">1 шт.</span>
+                        </div>
+                        <span class="menu-item-price">210 ₽</span>
+                    </div>
+                    <div class="menu-item">
+                        <div>
+                            <span class="menu-item-name">STELLA ARTOIS Non Alcohol</span>
+                            <span class="menu-item-sub">1 шт.</span>
+                        </div>
+                        <span class="menu-item-price">170 ₽</span>
+                    </div>
+                    <div class="menu-item">
+                        <div>
+                            <span class="menu-item-name">ESSA</span>
+                            <span class="menu-item-sub">в ассортименте · 1 шт.</span>
+                        </div>
+                        <span class="menu-item-price">180 ₽</span>
+                    </div>
+                </div>
+
+                <!-- НАПИТКИ SOFT -->
+                <div class="menu-category">
+                    <p class="menu-cat-title">Напитки</p>
+                    <div class="menu-item">
+                        <div>
+                            <span class="menu-item-name">Coca-Cola Original</span>
+                            <span class="menu-item-sub">1 шт.</span>
+                        </div>
+                        <span class="menu-item-price">180 ₽</span>
+                    </div>
+                    <div class="menu-item">
+                        <div>
+                            <span class="menu-item-name">Добрый Cola</span>
+                            <span class="menu-item-sub">1 шт.</span>
+                        </div>
+                        <span class="menu-item-price">150 ₽</span>
+                    </div>
+                    <div class="menu-item">
+                        <div>
+                            <span class="menu-item-name">Pepsi</span>
+                            <span class="menu-item-sub">1 шт.</span>
+                        </div>
+                        <span class="menu-item-price">160 ₽</span>
+                    </div>
+                    <div class="menu-item">
+                        <div>
+                            <span class="menu-item-name">Dr. Pepper</span>
+                            <span class="menu-item-sub">1 шт.</span>
+                        </div>
+                        <span class="menu-item-price">170 ₽</span>
+                    </div>
+                    <div class="menu-item">
+                        <div>
+                            <span class="menu-item-name">Red Bull</span>
+                            <span class="menu-item-sub">1 шт.</span>
+                        </div>
+                        <span class="menu-item-price">200 ₽</span>
+                    </div>
+                    <div class="menu-item">
+                        <div>
+                            <span class="menu-item-name">PULPY</span>
+                            <span class="menu-item-sub">в ассортименте · 1 шт.</span>
+                        </div>
+                        <span class="menu-item-price">150 ₽</span>
+                    </div>
+                    <div class="menu-item">
+                        <div>
+                            <span class="menu-item-name">Чай</span>
+                            <span class="menu-item-sub">в ассортименте · 500 мл</span>
+                        </div>
+                        <span class="menu-item-price">200 ₽</span>
+                    </div>
+                </div>
+
+                <!-- СНЕКИ И ДЕСЕРТЫ -->
+                <div class="menu-category">
+                    <p class="menu-cat-title">Снеки · Десерты</p>
+                    <div class="menu-item">
+                        <div>
+                            <span class="menu-item-name">Чипсы Lay's</span>
+                            <span class="menu-item-sub">в ассортименте · 70 г</span>
+                        </div>
+                        <span class="menu-item-price">170 ₽</span>
+                    </div>
+                    <div class="menu-item">
+                        <div>
+                            <span class="menu-item-name">Арахис</span>
+                            <span class="menu-item-sub">100 г</span>
+                        </div>
+                        <span class="menu-item-price">120 ₽</span>
+                    </div>
+                    <div class="menu-item">
+                        <div>
+                            <span class="menu-item-name">Choco Pie</span>
+                            <span class="menu-item-sub">28 г</span>
+                        </div>
+                        <span class="menu-item-price">50 ₽</span>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- REVIEWS -->
+    <section id="reviews" style="background: var(--dark);">
+        <div class="section-inner">
+            <p class="section-label reveal">Что говорят гости</p>
+            <h2 class="section-title reveal">Отзывы</h2>
+            <div class="reviews-grid reveal">
+
+                <div class="review-card">
+                    <div class="review-stars">★★★★★</div>
+                    <p class="review-text">«Приятное место и идеальное для посиделок в компании. Тут не только качественный кальян, который сделают по вашим предпочтениям, но и найдёте чем себя занять — настольные игры, приставка.»</p>
+                    <p class="review-author">Екатерина С.</p>
+                    <p class="review-date">Апрель 2025</p>
+                </div>
+
+                <div class="review-card">
+                    <div class="review-stars">★★★★★</div>
+                    <p class="review-text">«Вечер с кайфом! Спасибо кальянщику Андрею за вкусы и заведению за атмосферу 🙏»</p>
+                    <p class="review-author">Денис Е.</p>
+                    <p class="review-date">Июль 2025</p>
+                </div>
+
+                <div class="review-card">
+                    <div class="review-stars">★★★★★</div>
+                    <p class="review-text">«Сотрудники доброжелательные, много разноплановых мест чтобы разместиться — и с приставкой, и для компании, и одному.»</p>
+                    <p class="review-author">Михаил И.</p>
+                    <p class="review-date">Май 2025</p>
+                </div>
+
+                <div class="review-card">
+                    <div class="review-stars">★★★★★</div>
+                    <p class="review-text">«Прекрасное спокойное местечко. Кальян вкусный, дымный. Угли меняют. Очень приветливый персонал. Для отдыха прекрасное место!»</p>
+                    <p class="review-author">Ольга К.</p>
+                    <p class="review-date">Июнь 2025</p>
+                </div>
+
+                <div class="review-card">
+                    <div class="review-stars">★★★★★</div>
+                    <p class="review-text">«Кальян делают хорошо и недорого. Можно поиграть в приставку и попить чай. Расположена очень удобно.»</p>
+                    <p class="review-author">Lesya103</p>
+                    <p class="review-date">Май 2025</p>
+                </div>
+
+                <div class="review-card">
+                    <div class="review-stars">★★★★★</div>
+                    <p class="review-text">«Кальянщик Александр забивает достойный кальян! Очень советуем — можно не только покурить кальян, но и приятно провести время за приставкой и настолками!»</p>
+                    <p class="review-author">Валерия Б.</p>
+                    <p class="review-date">Май 2025</p>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- CONTACT -->
+    <section id="contact">
+        <div class="section-inner">
+            <p class="section-label reveal">Найти нас</p>
+            <h2 class="section-title reveal">Контакты</h2>
+            <div class="contact-grid reveal">
+                <div class="contact-block">
+                    <p class="contact-label">Телефон</p>
+                    <a href="tel:+79097973049" class="contact-value">+7 (909) 797-30-49</a>
+                    <p class="contact-sub">Звоните — ответим</p>
+                </div>
+                <div class="contact-block">
+                    <p class="contact-label">Адрес</p>
+                    <a href="https://yandex.ru/maps/?text=Калининград+ул.+Александра+Невского+51В"
+                       target="_blank" class="contact-value">
+                        ул. Александра Невского, 51В
+                    </a>
+                    <p class="contact-sub">Калининград · Бесплатная парковка</p>
+                </div>
+                <div class="contact-block">
+                    <p class="contact-label">Сегодня работаем</p>
+                    <span class="contact-value" style="cursor:default;">16:00 — 02:00</span>
+                    <p class="contact-sub">Пт — Сб до 04:00</p>
+                </div>
+                <div class="contact-block">
+                    <p class="contact-label">Средний счёт</p>
+                    <span class="contact-value" style="cursor:default;">700 — 1 000 ₽</span>
+                    <p class="contact-sub">Дисконтная система скидок</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer>
+        <span class="footer-logo">Дым Лаундж</span>
+        <span class="footer-copy">© 2025 · Калининград · ул. Александра Невского, 51В</span>
+    </footer>
+    <script>
+        // ========== SMOKE CANVAS ==========
+        const canvas = document.getElementById('smokeCanvas');
+        const ctx = canvas.getContext('2d');
+
+        canvas.width  = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        window.addEventListener('resize', () => {
+            canvas.width  = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+
+        class SmokeParticle {
+            constructor() { this.reset(); }
+
+            reset() {
+                this.x      = Math.random() * canvas.width;
+                this.y      = canvas.height + Math.random() * 200;
+                this.radius = Math.random() * 120 + 40;
+                this.speedY = -(Math.random() * 0.4 + 0.15);
+                this.speedX = (Math.random() - 0.5) * 0.3;
+                this.life   = 0;
+                this.maxLife= Math.random() * 300 + 200;
+                this.angle  = Math.random() * Math.PI * 2;
+                this.spin   = (Math.random() - 0.5) * 0.004;
+                this.alpha  = Math.random() * 0.12 + 0.04;
+            }
+
+            update() {
+                this.y      += this.speedY;
+                this.x      += this.speedX + Math.sin(this.angle) * 0.3;
+                this.angle  += this.spin;
+                this.radius += 0.18;
+                this.life++;
+                if (this.life > this.maxLife || this.y < -this.radius * 2) this.reset();
+            }
+
+            draw() {
+                const progress = this.life / this.maxLife;
+                const fade     = progress < 0.2
+                    ? progress / 0.2
+                    : progress > 0.7
+                        ? 1 - (progress - 0.7) / 0.3
+                        : 1;
+
+                const gradient = ctx.createRadialGradient(
+                    this.x, this.y, 0,
+                    this.x, this.y, this.radius
+                );
+                gradient.addColorStop(0,   `rgba(200,169,110,${this.alpha * fade})`);
+                gradient.addColorStop(0.4, `rgba(200,169,110,${this.alpha * fade * 0.5})`);
+                gradient.addColorStop(1,   `rgba(200,169,110,0)`);
+
+                ctx.save();
+                ctx.translate(this.x, this.y);
+                ctx.rotate(this.angle);
+                ctx.translate(-this.x, -this.y);
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.fillStyle = gradient;
+                ctx.fill();
+                ctx.restore();
+            }
+        }
+
+        // Создаём частицы
+        const particles = Array.from(
+            { length: 28 },
+            (_, i) => {
+                const p = new SmokeParticle();
+                p.life = Math.floor(Math.random() * p.maxLife);
+                p.y    = Math.random() * canvas.height;
+                return p;
+            }
+        );
+
+        function animateSmoke() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => { p.update(); p.draw(); });
+            requestAnimationFrame(animateSmoke);
+        }
+        animateSmoke();
+
+        // ========== SCROLL REVEAL ==========
+        const revealEls = document.querySelectorAll('.reveal');
+
+        const observer = new IntersectionObserver(
+            entries => {
+                entries.forEach(e => {
+                    if (e.isIntersecting) {
+                        e.target.classList.add('visible');
+                        observer.unobserve(e.target);
+                    }
+                });
+            },
+            { threshold: 0.12 }
+        );
+
+        revealEls.forEach(el => observer.observe(el));
+
+        // ========== ACTIVE NAV ==========
+        const sections = document.querySelectorAll('section[id]');
+        const navLinks  = document.querySelectorAll('.nav-links a');
+
+        window.addEventListener('scroll', () => {
+            let current = '';
+            sections.forEach(sec => {
+                if (window.scrollY >= sec.offsetTop - 120) {
+                    current = sec.getAttribute('id');
+                }
+            });
+            navLinks.forEach(a => {
+                a.style.color = a.getAttribute('href') === `#${current}`
+                    ? 'var(--gold)'
+                    : '';
+            });
+        });
+
+        // ========== DYNAMIC HOURS ==========
+        const nowHours = (() => {
+            const d   = document.querySelector('.contact-block .contact-value');
+            if (!d) return;
+            const now = new Date();
+            const day = now.getDay(); // 0=вс,5=пт,6=сб
+            const isWeekend = day === 5 || day === 6;
+            d.textContent = isWeekend ? '16:00 — 04:00' : '16:00 — 02:00';
+        })();
+
+        // ========== PARALLAX HERO ==========
+        const heroTitle = document.querySelector('.hero-title');
+        window.addEventListener('scroll', () => {
+            const y = window.scrollY;
+            if (heroTitle && y < window.innerHeight) {
+                heroTitle.style.transform = `translateY(${y * 0.25}px)`;
+                heroTitle.style.opacity   = 1 - y / (window.innerHeight * 0.7);
+            }
+        });
+    </script>
+
+</body>
+</html>
